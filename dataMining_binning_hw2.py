@@ -20,8 +20,8 @@ def bin_Means(data, depth):
     binValues, binEdges = pd.cut(data.array, bins = depth, \
                                  labels = range(1, depth + 1), retbins = True)
         
-    print("The respective bin for each value of attribute: \n", binValues, "\n")
-    print("The computed specified bins: \n", binEdges, "\n")
+    print("The respective bin for each value of attribute: \n", set(binValues), "\n")
+    print("Computed bins: \n", binEdges, "\n")
     
     binnedValues = pd.DataFrame( \
                    list(zip(data, binValues)), columns = ['value', 'bin'])
@@ -46,7 +46,7 @@ def bin_Boundaries(data, depth):
     binValues, binEdges = pd.cut(data.array, bins = depth, \
                                  labels = range(1, depth + 1), retbins = True)
     
-    print("The respective bin for each value of attribute: \n", binValues, "\n")
+    print("The respective bin for each value of attribute: \n", set(binValues), "\n")
     print("The computed specified bins: \n", binEdges, "\n")
     
     binnedValues = pd.DataFrame( \
@@ -87,7 +87,7 @@ def bin_Medians(data, depth):
     binValues, binEdges = pd.cut(data.array, bins = depth, \
                 labels = range(1, depth + 1), retbins = True)
         
-    print("The respective bin for each value of attribute: \n", binValues, "\n")
+    print("The respective bin for each value of attribute: \n", set(binValues), "\n")
     print("The computed specified bins: \n", binEdges, "\n")
     
     binnedValues = pd.DataFrame( \
@@ -179,9 +179,9 @@ data = pd.read_csv('https://raw.githubusercontent.com/michaelchapa' \
 numericalFeatures = data[data.columns[3:]] # remove redundant index column
 nominalFeatures = data[data.columns[1:3]]
 
-# bin_Means(numericalFeatures, 4) # k = 4, 10, 50
+bin_Means(numericalFeatures, 4) # k = 4, 10, 50
 bin_Boundaries(numericalFeatures, 4)
-# bin_Medians(numericalFeatures, 4)
-# pcaAnalysis(numericalFeatures, ['C', 'D', 'E', 'F'], 2)
-# calculate_correlation(numericalFeatures)
-# construct_contingency_table(nominalFeatures)
+bin_Medians(numericalFeatures, 4)
+pcaAnalysis(numericalFeatures, ['C', 'D', 'E', 'F'], 2)
+calculate_correlation(numericalFeatures)
+construct_contingency_table(nominalFeatures)
