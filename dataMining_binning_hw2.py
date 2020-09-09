@@ -1,7 +1,9 @@
 import pandas as pd
 import numpy as np
 from sklearn.decomposition import PCA
+from scipy import stats
 
+########################### bin_Means #####################################
 # Purpose: 
 #   Smooths data by Binning, Prints each bin's mean value.
 # Parameters:
@@ -25,7 +27,9 @@ def bin_Means(data, depth):
                    list(zip(data, binValues)), columns = ['value', 'bin'])
     binnedValuesMean = binnedValues.groupby(['bin']).mean()
     print("Means for each bin: \n", binnedValuesMean)
-    
+
+
+############################ bin_Medians #################################
 # Purpose: 
 #   Smooths data by Binning, Prints each bin's median value.
 # Parameters:
@@ -49,7 +53,9 @@ def bin_Medians(data, depth):
                    list(zip(data, binValues)), columns = ['value', 'bin'])
     binnedValuesMedian = binnedValues.groupby(['bin']).median()
     print("Medians for each bin: \n", binnedValuesMedian)
-    
+
+
+############################ pcaAnalysis ###################################
 # Purpose:
 #   Uses Primary Component Analysis to decompose (reduce) data to 'p' columns.
 # Parameters:
@@ -78,29 +84,54 @@ def pcaAnalysis(data, columnNames, p):
     print('Per Feature empirical mean, estimated from the training set:')
     print(pca.mean_)
 
-# Purpose:
-#
-# Parameters:
-#
-# Returns:
-#
-# Notes:
-# 
 
+####################### calculate_correlation ##############################
 # Purpose:
-#
+# Calculates covariance and correlation-coefficient
+# Parameters:
+#   data - DataFrame - data to be correlated feature-wise
+# Returns:
+#   None
+# Notes:
+#   None
+def calculate_correlation(data):
+    correlations, pValues = stats.spearmanr(data)
+    covariances = np.cov(data, rowvar = False)
+    labels = ['C', 'D', 'E', 'F']
+    
+    print('Correlation Coefficient matrix:')
+    print(pd.DataFrame(correlations, columns = labels, index = labels), '\n')
+    
+    print('Covariance matrix: ')
+    print(pd.DataFrame(covariances, columns = labels, index = labels), '\n')
+
+
+#################### construct_contingency_table ##########################        
+# Purpose:
+# 
 # Parameters:
 #
 # Returns:
 #
 # Notes:
 # 
+def construct_contingency_table(data):
+    contingency = pd.crosstab(data['A'], data['B'])
+    c, p, dof, expected = stats.chi2_contingency(contingency)
+    print('c: ', c)
+    print('p: ', p)
+    print('dof: ', dof)
+    print(expected)
+
+    
 ########################### MAIN ########################################
 data = pd.read_csv('https://raw.githubusercontent.com/michaelchapa' \
                    '/dataMining_data_preprocessing/master/hwk01.csv')
 numericalFeatures = data[data.columns[3:]] # remove redundant index column
+nominalFeatures = data[data.columns[1:3]]
 
-
-bin_Means(numericalFeatures, 4) # k = 4, 10, 50
-bin_Medians(numericalFeatures, 4)
+# bin_Means(numericalFeatures, 4) # k = 4, 10, 50
+# bin_Medians(numericalFeatures, 4)
 # pcaAnalysis(numericalFeatures, ['C', 'D', 'E', 'F'], 2)
+# calculate_correlation(numericalFeatures)
+construct_contingency_table(nominalFeatures)
