@@ -18,18 +18,59 @@ def bin_Means(data, depth):
     data = data.sort_values()
     
     binValues, binEdges = pd.cut(data.array, bins = depth, \
-                labels = range(1, depth + 1), retbins = True)
+                                 labels = range(1, depth + 1), retbins = True)
         
     print("The respective bin for each value of attribute: \n", binValues, "\n")
-    print("The computed specified bins: \n", binEdges)
+    print("The computed specified bins: \n", binEdges, "\n")
     
     binnedValues = pd.DataFrame( \
                    list(zip(data, binValues)), columns = ['value', 'bin'])
     binnedValuesMean = binnedValues.groupby(['bin']).mean()
-    print("Means for each bin: \n", binnedValuesMean)
+    print("Mean value for each value in bin: \n", binnedValuesMean, "\n\n")
 
 
-############################ bin_Medians #################################
+######################## bin_Boundaries ##################################
+# Purpose: 
+#   Smooths data by Binning, Prints each bin's closest boundary value.
+# Parameters:
+#   data  - DataFrame - to be smoothed
+#   depth - Integer   - the number of equal length bins
+# Returns: 
+#   None
+# Notes: 
+#   Changing pd.cut(labels = False) gives cleaner output
+def bin_Boundaries(data, depth):
+    data = data['E']
+    data = data.sort_values()
+    
+    binValues, binEdges = pd.cut(data.array, bins = depth, \
+                                 labels = range(1, depth + 1), retbins = True)
+    
+    print("The respective bin for each value of attribute: \n", binValues, "\n")
+    print("The computed specified bins: \n", binEdges, "\n")
+    
+    binnedValues = pd.DataFrame( \
+                   list(zip(data, binValues)), columns = ['value', 'bin'])
+    
+    for index, observation in binnedValues.iterrows():
+        value = observation[0].tolist()
+        minDistance = 999999999
+        leastDistant = 0
+        
+        for edge in binEdges:
+            edge = edge.tolist()
+            distance = abs(edge - value)
+            if distance < minDistance:
+                leastDistant = edge
+                minDistance = distance
+                
+        # set value at dataframe
+        binnedValues.at[index, 'value'] = leastDistant
+        
+    print(binnedValues)
+       
+        
+######################## bin_Medians ######################################
 # Purpose: 
 #   Smooths data by Binning, Prints each bin's median value.
 # Parameters:
@@ -47,15 +88,15 @@ def bin_Medians(data, depth):
                 labels = range(1, depth + 1), retbins = True)
         
     print("The respective bin for each value of attribute: \n", binValues, "\n")
-    print("The computed specified bins: \n", binEdges)
+    print("The computed specified bins: \n", binEdges, "\n")
     
     binnedValues = pd.DataFrame( \
                    list(zip(data, binValues)), columns = ['value', 'bin'])
     binnedValuesMedian = binnedValues.groupby(['bin']).median()
-    print("Medians for each bin: \n", binnedValuesMedian)
+    print("Median value for each value in bin: \n", binnedValuesMedian, "\n\n")
 
 
-############################ pcaAnalysis ###################################
+######################## pcaAnalysis #####################################
 # Purpose:
 #   Uses Primary Component Analysis to decompose (reduce) data to 'p' columns.
 # Parameters:
@@ -87,7 +128,7 @@ def pcaAnalysis(data, columnNames, p):
 
 ####################### calculate_correlation ##############################
 # Purpose:
-# Calculates covariance and correlation-coefficient
+#   Calculates covariance and correlation-coefficient
 # Parameters:
 #   data - DataFrame - data to be correlated feature-wise
 # Returns:
@@ -108,30 +149,39 @@ def calculate_correlation(data):
 
 #################### construct_contingency_table ##########################        
 # Purpose:
-# 
+#   Constructs a contingency table and Print Chi-square test of independence
+#   of variables in the contingency table. 
 # Parameters:
-#
+#   data - DataFrame - Columns used for table creation
 # Returns:
-#
+#   None
 # Notes:
-# 
+#   None
 def construct_contingency_table(data):
-    contingency = pd.crosstab(data['A'], data['B'])
+    contingency = pd.crosstab(data['A'], data['B'], normalize = True) 
     c, p, dof, expected = stats.chi2_contingency(contingency)
-    print('c: ', c)
-    print('p: ', p)
-    print('dof: ', dof)
-    print(expected)
+    aLabels, bLabels = ['a1', 'a2', 'a3'], ['b1', 'b2']
+
+    print('Contingency Table of Normalized Observed Frequencies:\n')
+    print(pd.DataFrame( \
+          contingency, columns = bLabels, index = aLabels), '\n\n')
+    
+    print('Expected frequencies, based on marginal sums of the table: \n')
+    print(pd.DataFrame(expected, columns = bLabels, index = aLabels), '\n')
+    print('Chi-square test statistic: %.4lf' % (c))
+    print('P-value of test: %.4lf' % (p))
+    print('Degrees of Freedom: %d' % (dof))
 
     
-########################### MAIN ########################################
+########################### Main ########################################
 data = pd.read_csv('https://raw.githubusercontent.com/michaelchapa' \
                    '/dataMining_data_preprocessing/master/hwk01.csv')
 numericalFeatures = data[data.columns[3:]] # remove redundant index column
 nominalFeatures = data[data.columns[1:3]]
 
 # bin_Means(numericalFeatures, 4) # k = 4, 10, 50
+bin_Boundaries(numericalFeatures, 4)
 # bin_Medians(numericalFeatures, 4)
 # pcaAnalysis(numericalFeatures, ['C', 'D', 'E', 'F'], 2)
 # calculate_correlation(numericalFeatures)
-construct_contingency_table(nominalFeatures)
+# construct_contingency_table(nominalFeatures)
