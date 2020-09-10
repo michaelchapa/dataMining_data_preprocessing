@@ -6,3 +6,6 @@ https://github.com/michaelchapa/dataMining_data_preprocessing/blob/master/dataMi
 
 To see raw code and run it yourself:
 https://github.com/michaelchapa/dataMining_data_preprocessing/blob/master/dataMining_binning_hw2.py
+
+Full output located at:
+https://github.com/michaelchapa/dataMining_data_preprocessing/blob/master/output.txt
